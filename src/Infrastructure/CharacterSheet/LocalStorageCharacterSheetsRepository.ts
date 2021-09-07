@@ -10,8 +10,6 @@ class LocalStorageCharacterSheetsRepository implements CharacterSheetsRepository
   private characterSheets: CharacterSheet[] = [];
   private maxId: number;
 
-  private static extracted: CharacterSheetsRepository;
-
   constructor(characterSheets: CharacterSheet[]) {
     this.characterSheets = characterSheets;
 
@@ -25,26 +23,9 @@ class LocalStorageCharacterSheetsRepository implements CharacterSheetsRepository
   }
 
   public static extract = (): CharacterSheetsRepository => {
-    if (LocalStorageCharacterSheetsRepository.extracted) {
-      return LocalStorageCharacterSheetsRepository.extracted;
-    }
-
-    const rawData = window.localStorage.getItem('characterSheets');
-    let data = [];
-    
-    if (rawData) {
-      data = JSON.parse(rawData).map((item: StoredCharacterSheet) => {
-        const current = new CharacterSheet(item.id);
-
-        current.characterName = item.characterName;
-
-        return current;
-      });
-    }
-
-    LocalStorageCharacterSheetsRepository.extracted = new LocalStorageCharacterSheetsRepository(data);
-
-    return LocalStorageCharacterSheetsRepository.extracted;
+    return new LocalStorageCharacterSheetsRepository(
+      LocalStorageCharacterSheetsRepository.readFromStorage()
+    );
   }
 
   find = (id: number) => {
@@ -64,13 +45,38 @@ class LocalStorageCharacterSheetsRepository implements CharacterSheetsRepository
   }
 
   save = () => {
-    const data = this.characterSheets.map(sheet => sheet.toJSONReady());
+    window.localStorage.setItem('characterSheets', this.toJSONString());
+  }
 
-    window.localStorage.setItem('characterSheets', JSON.stringify(data));
+  upload = (data: string) => {
+    window.localStorage.setItem('characterSheets', data);
+
+    this.characterSheets = LocalStorageCharacterSheetsRepository.readFromStorage();
+  }
+
+  toJSONString = () => {
+    return JSON.stringify(this.characterSheets.map(sheet => sheet.toJSONReady()))
   }
 
   map = <T>(fn: (val: CharacterSheet) => T): T[] => {
     return this.characterSheets.map(fn);
+  }
+
+  private static readFromStorage = (): CharacterSheet[] => {
+    const rawData = window.localStorage.getItem('characterSheets');
+    let data = [];
+    
+    if (rawData) {
+      data = JSON.parse(rawData).map((item: StoredCharacterSheet) => {
+        const current = new CharacterSheet(item.id);
+
+        current.characterName = item.characterName;
+
+        return current;
+      });
+    }
+
+    return data;
   }
 }
 

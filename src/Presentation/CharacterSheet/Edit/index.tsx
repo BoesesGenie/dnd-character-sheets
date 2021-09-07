@@ -4,7 +4,7 @@ import useCharacterSheetsRepository from '../../../Application/CharacterSheet/us
 import CharacterSheet from '../../../Domain/CharacterSheet/Model/CharacterSheet';
 
 const Edit = () => {
-  const characterSheets = useCharacterSheetsRepository();
+  const [characterSheets] = useCharacterSheetsRepository();
   const { characterSheetId } = useParams<{ characterSheetId: string }>();
   const { push } = useHistory();
   const characterSheet = useMemo(() => characterSheets.find(+characterSheetId) || new CharacterSheet(CharacterSheet.NEW_SHEET_ID), [characterSheets, characterSheetId]);
