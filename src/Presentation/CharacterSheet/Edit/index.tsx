@@ -4,11 +4,12 @@ import useCharacterSheetsRepository from '../../../Application/CharacterSheet/us
 import CharacterSheet from '../../../Domain/CharacterSheet/Model/CharacterSheet';
 
 const Edit = () => {
-  const [characterSheets] = useCharacterSheetsRepository();
+  const [characterSheets, refresh] = useCharacterSheetsRepository();
   const { characterSheetId } = useParams<{ characterSheetId: string }>();
   const { push } = useHistory();
   const characterSheet = useMemo(() => characterSheets.find(+characterSheetId) || new CharacterSheet(CharacterSheet.NEW_SHEET_ID), [characterSheets, characterSheetId]);
   const [characterName, setCharacterName] = useState(characterSheet.characterName);
+  const [experiencePoints, setExperiencePoints] = useState(characterSheet.experiencePoints);
   
   const saveChanges = useCallback((e) => {
     e.preventDefault();
@@ -31,13 +32,29 @@ const Edit = () => {
     setCharacterName(characterSheet.characterName);
   }, [characterSheet]);
 
+  const onExperiencePointsChange = useCallback((e) => {
+    setExperiencePoints(e.target.value);
+  }, []);
+
+  const saveExperiencePoints = useCallback(() => {
+    characterSheet.experiencePoints = experiencePoints;
+    characterSheets.save();
+    refresh();
+  }, [characterSheet, experiencePoints, characterSheets, refresh]);
+
   return (
     <form onSubmit={saveChanges}>
       <div>
         <button type="submit">Сохранить</button>
       </div>
       <div>
+        Имя персонажа
         <input type="text" value={characterName} onChange={onCharacterNameChange} />
+      </div>
+      <div>Класс и уровень {characterSheet.classAndLevel}</div>
+      <div>
+        Опыт
+        <input type="text" value={experiencePoints} onChange={onExperiencePointsChange} onBlur={saveExperiencePoints} />
       </div>
     </form>
   );

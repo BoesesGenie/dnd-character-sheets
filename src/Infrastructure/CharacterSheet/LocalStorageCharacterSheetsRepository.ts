@@ -1,10 +1,5 @@
-import CharacterSheet from '../../Domain/CharacterSheet/Model/CharacterSheet';
+import CharacterSheet, { CharacterSheetJSONReady } from '../../Domain/CharacterSheet/Model/CharacterSheet';
 import CharacterSheetsRepository from '../../Domain/CharacterSheet/Model/CharacterSheetRepository';
-
-interface StoredCharacterSheet {
-  id: number;
-  characterName: string;
-};
 
 class LocalStorageCharacterSheetsRepository implements CharacterSheetsRepository {
   private characterSheets: CharacterSheet[] = [];
@@ -67,13 +62,7 @@ class LocalStorageCharacterSheetsRepository implements CharacterSheetsRepository
     let data = [];
     
     if (rawData) {
-      data = JSON.parse(rawData).map((item: StoredCharacterSheet) => {
-        const current = new CharacterSheet(item.id);
-
-        current.characterName = item.characterName;
-
-        return current;
-      });
+      data = JSON.parse(rawData).map((item: CharacterSheetJSONReady) => CharacterSheet.fromJSONReady(item));
     }
 
     return data;

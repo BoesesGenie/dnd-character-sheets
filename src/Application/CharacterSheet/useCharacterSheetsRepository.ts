@@ -6,7 +6,6 @@ const useCharacterSheetsRepository = (): [CharacterSheetsRepository, () => void]
   const [repository, setRepository] = useState(LocalStorageCharacterSheetsRepository.extract());
 
   const refresh = useCallback(() => {
-    console.log('test');
     setRepository(LocalStorageCharacterSheetsRepository.extract());
   }, []);
 
